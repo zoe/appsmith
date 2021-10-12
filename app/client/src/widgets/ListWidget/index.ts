@@ -224,6 +224,7 @@ export const CONFIG = {
             widgets: { [widgetId: string]: FlattenedWidgetProps },
           ) => {
             let template = {};
+            let template2 = {};
             const logBlackListMap: any = {};
             const container = get(
               widgets,
@@ -277,6 +278,10 @@ export const CONFIG = {
                   ...template,
                   [childWidget.widgetName]: childWidget,
                 };
+                template2 = {
+                  ...template2,
+                  [childWidget.widgetName]: get(widgets, `${child}`),
+                };
               });
 
             updatePropertyMap = [
@@ -289,6 +294,11 @@ export const CONFIG = {
                 widgetId: widget.widgetId,
                 propertyName: "template",
                 propertyValue: template,
+              },
+              {
+                widgetId: widget.widgetId,
+                propertyName: "template2",
+                propertyValue: template2,
               },
             ];
 

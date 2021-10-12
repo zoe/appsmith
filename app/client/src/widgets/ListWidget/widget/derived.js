@@ -148,5 +148,35 @@ export default {
         : {};
     return { currentItem: structure, currentIndex: "" };
   },
+
+  getDSL: (props) => {
+    const { children = [], listData = [], template2, widgetName } = this.props;
+    const childCanvas = children[0];
+    const container = childCanvas.children[0]; //container
+    const canvasChildren = [];
+    for (let i = 0; i < listData.length; i++) {
+      const newContainer = JSON.parse(JSON.stringify(container));
+      //@todo add height, + new names
+      // todo change widget ID's
+      newContainer.children[0].children = [];
+      newContainer.bottomRow = container.bottomRow * (i + 1);
+      Object.keys(template2).forEach((key) => {
+        const newWidget = JSON.parse(
+          JSON.stringify(template2[key]).replace(
+            "currentItem",
+            `${widgetName}.listData.${i}.${key}`,
+          ),
+        );
+        //@todo update parentID and widgetID
+
+        newWidget.widgetName = `${widgetName}.${key}.${i}`;
+        newContainer.children[0].children.push(newWidget);
+      });
+      canvasChildren.push(newContainer);
+    }
+    childCanvas.children = canvasChildren;
+
+    return childCanvas;
+  },
   //
 };

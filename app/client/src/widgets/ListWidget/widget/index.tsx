@@ -36,6 +36,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import Canvas from "pages/Editor/Canvas";
 
 const LIST_WIDGEY_PAGINATION_HEIGHT = 36;
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
@@ -56,6 +57,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       selectedItem: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
       items: `{{(() => {${derivedProperties.getItems}})()}}`,
       childAutoComplete: `{{(() => {${derivedProperties.getChildAutoComplete}})()}}`,
+      dsl: `{{(() => {${derivedProperties.getDSL}})()}}`,
     };
   }
 
@@ -667,7 +669,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       } catch (e) {
         log.error(e);
       }
-      return this.renderChild(childCanvas);
+      // return this.renderChild(childCanvas);
+      // return <Canvas dsl={this.generateDSL() as DSLWidget} pageId="99" />;
+      const myDSL = this.generateDSL() as DSLWidget;
+      debugger;
+
+      return WidgetFactory.createWidget(myDSL, RenderModes.CANVAS);
     }
   };
 
@@ -712,6 +719,38 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       );
     },
   );
+
+  // Container came, but canvas is missing.-
+  generateDSL = () => {
+    const { children = [], listData = [], template2, widgetName } = this.props;
+    const childCanvas = children[0];
+    const container = childCanvas.children[0]; //container
+    const canvasChildren = [];
+    for (let i = 0; i < listData.length; i++) {
+      const newContainer = JSON.parse(JSON.stringify(container));
+      //@todo add height, + new names
+      // todo change widget ID's
+      newContainer.children[0].children = [];
+      newContainer.bottomRow = container.bottomRow * (i + 1);
+      Object.keys(template2).forEach((key) => {
+        const newWidget = JSON.parse(
+          JSON.stringify(template2[key]).replace(
+            "currentItem",
+            `${widgetName}.listData.${i}.${key}`,
+          ),
+        );
+        //@todo update parentID and widgetID
+
+        newWidget.widgetName = `${widgetName}.${key}.${i}`;
+        newContainer.children[0].children.push(newWidget);
+      });
+      canvasChildren.push(newContainer);
+    }
+    childCanvas.children = canvasChildren;
+
+    debugger;
+    return childCanvas;
+  };
 
   /**
    * 400
