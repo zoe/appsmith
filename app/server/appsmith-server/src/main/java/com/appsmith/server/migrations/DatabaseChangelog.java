@@ -3580,4 +3580,23 @@ public class DatabaseChangelog {
         // Now that the actions have completed the migrations, update the plugin to use the new UI form.
         mongockTemplate.save(s3Plugin);
     }
+    
+    @ChangeSet(order = "1000", id = "add-SmtpPlugin-plugin", author = "")
+    public void addSmtpPluginPlugin(MongockTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("SmtpPlugin");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("smtp-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setDatasourceComponent("AutoForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/SmtpPlugin.png");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-smtp-plugin");
+        plugin.setDefaultInstall(false);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+    }
 }
