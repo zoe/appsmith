@@ -3581,15 +3581,15 @@ public class DatabaseChangelog {
         mongockTemplate.save(s3Plugin);
     }
     
-    @ChangeSet(order = "1000", id = "add-SmtpPlugin-plugin", author = "")
+    @ChangeSet(order = "094", id = "add-smtp-plugin", author = "")
     public void addSmtpPluginPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("SmtpPlugin");
         plugin.setType(PluginType.DB);
         plugin.setPackageName("smtp-plugin");
-        plugin.setUiComponent("DbEditorForm");
+        plugin.setUiComponent("UQIDbEditorForm");
         plugin.setDatasourceComponent("AutoForm");
-        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/SmtpPlugin.png");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-smtp-plugin");
         plugin.setDefaultInstall(false);
@@ -3598,5 +3598,6 @@ public class DatabaseChangelog {
         } catch (DuplicateKeyException e) {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 }
