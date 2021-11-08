@@ -49,12 +49,14 @@ class CanvasWidget extends ContainerWidget {
       return null;
     }
     const snapSpaces = this.getSnapSpaces();
-
-    childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
-    childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
-    if (this.props.noPad) childWidgetData.noContainerOffset = true;
-    childWidgetData.parentId = this.props.widgetId;
-
+    try {
+      childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
+      childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
+      if (this.props.noPad) childWidgetData.noContainerOffset = true;
+      childWidgetData.parentId = this.props.widgetId;
+    } catch (e) {
+      console.log("key.......", childWidgetData, e);
+    }
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }
 

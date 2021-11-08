@@ -23,6 +23,7 @@ import {
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import {
   DataTree,
+  DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
@@ -204,10 +205,67 @@ export const getCanvasWidgetDsl = createSelector(
           widgetId: widgetKey,
         }) as DataTreeWidget;
         if (evaluatedWidget) {
-          widgets[widgetKey] = createCanvasWidget(
-            canvasWidget,
-            evaluatedWidget,
-          );
+          if (canvasWidget.parentId) {
+            if (canvasWidgets[canvasWidget.parentId].type === "LIST_WIDGET") {
+              const newCanvas = {
+                ...canvasWidget,
+                children: evaluatedWidget.children,
+              };
+              // canvasWidget.children = evaluatedWidget.children;
+              widgets[widgetKey] = createCanvasWidget(
+                newCanvas,
+                evaluatedWidget,
+              );
+            } else {
+              widgets[widgetKey] = createCanvasWidget(
+                canvasWidget,
+                evaluatedWidget,
+              );
+            }
+          }
+          if (canvasWidget.type === "LIST_WIDGET") {
+            const {
+              children,
+              listData,
+              template2,
+              widgetName: listWidgetName,
+            } = evaluatedWidget;
+            // mainCanvas.children.pop();
+            if (Array.isArray(listData)) {
+              for (let i = 0; i < listData.length; i++) {
+                // Container
+
+                // // Container
+                // const container = canvasWidgets[children[0]] || {};
+                // const containerKey = `${listWidgetName}_${container.widgetName}_${i}`;
+                // widgets[containerKey] = evaluatedDataTree[
+                //   containerKey
+                // ] as DataTreeWidget;
+
+                // //Canvas
+                // const canvas = canvasWidgets[container.children[0]];
+                // const canvasKey = `${listWidgetName}_${canvas.widgetName}_${i}`;
+                // widgets[canvasKey] = evaluatedDataTree[
+                //   canvasKey
+                // ] as DataTreeWidget;
+                const containerKey = `${listWidgetName}_container_${i}`;
+                const canvasKey = `${listWidgetName}_canvas_${i}`;
+                widgets[containerKey] = evaluatedDataTree[
+                  containerKey
+                ] as DataTreeWidget;
+                widgets[canvasKey] = evaluatedDataTree[
+                  canvasKey
+                ] as DataTreeWidget;
+                Object.values(template2).forEach((widget: any) => {
+                  const key = `${listWidgetName}_${widget.widgetName}_${i}`;
+                  widgets[key] = createCanvasWidget(
+                    widget,
+                    evaluatedDataTree[key] as DataTreeWidget,
+                  );
+                });
+              }
+            }
+          }
         } else {
           widgets[widgetKey] = createLoadingWidget(canvasWidget);
         }
@@ -215,6 +273,18 @@ export const getCanvasWidgetDsl = createSelector(
           canvasWidget.widgetName,
         );
       });
+
+    // Object.values(evaluatedDataTree)
+    //   .filter(
+    //     (each: DataTreeEntity) =>
+    //       each?.ENTITY_TYPE && each.ENTITY_TYPE === "WIDGET",
+    //   )
+    //   .forEach((item) => {
+    //     const { widgetId } = item;
+    //     if (!widgets[widgetId]) {
+    //       widgets[widgetId] = item;
+    //     }
+    //   });
 
     return CanvasWidgetsNormalizer.denormalize("0", {
       canvasWidgets: widgets,

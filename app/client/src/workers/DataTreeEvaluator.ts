@@ -338,6 +338,8 @@ export default class DataTreeEvaluator {
     let dependencyMap: DependencyMap = {};
     this.allKeys = getAllPaths(unEvalTree);
     Object.keys(unEvalTree).forEach((entityName) => {
+      debugger;
+
       const entity = unEvalTree[entityName];
       if (isAction(entity) || isWidget(entity) || isJSAction(entity)) {
         const entityListedDependencies = this.listEntityDependencies(
@@ -347,6 +349,7 @@ export default class DataTreeEvaluator {
         dependencyMap = { ...dependencyMap, ...entityListedDependencies };
       }
     });
+
     Object.keys(dependencyMap).forEach((key) => {
       dependencyMap[key] = _.flatten(
         dependencyMap[key].map((path) =>

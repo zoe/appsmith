@@ -123,6 +123,7 @@ ctx.addEventListener(
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
           dataTreeEvaluator = undefined;
         }
+        debugger;
         return {
           dataTree,
           dependencies,

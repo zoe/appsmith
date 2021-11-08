@@ -12,6 +12,8 @@ import {
   omit,
   floor,
   isEmpty,
+  map,
+  sortBy,
 } from "lodash";
 import memoizeOne from "memoize-one";
 import shallowEqual from "shallowequal";
@@ -642,7 +644,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   /**
    * renders children
    */
-  renderChildren = () => {
+  renderChildren_ = () => {
     if (
       this.props.children &&
       this.props.children.length > 0 &&
@@ -671,11 +673,48 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       }
       // return this.renderChild(childCanvas);
       // return <Canvas dsl={this.generateDSL() as DSLWidget} pageId="99" />;
-      const myDSL = this.generateDSL() as DSLWidget;
-      debugger;
-
-      return WidgetFactory.createWidget(myDSL, RenderModes.CANVAS);
+      // const myDSL = this.generateDSL() as DSLWidget;
+      // debugger;
+      console.log("key............", this.props);
+      // return <Canvas dsl={JSON.parse(this.props.dsl)} pageId="99" />;
+      return WidgetFactory.createWidget(this.props.dsl, RenderModes.CANVAS);
     }
+  };
+
+  renderChildWidget = (childWidgetData: WidgetProps): React.ReactNode => {
+    // For now, isVisible prop defines whether to render a detached widget
+    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
+      return null;
+    }
+
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    try {
+      childWidgetData.rightColumn = componentWidth;
+      childWidgetData.bottomRow = this.props.shouldScrollContents
+        ? childWidgetData.bottomRow
+        : componentHeight;
+      childWidgetData.minHeight = componentHeight;
+      childWidgetData.isVisible = this.props.isVisible;
+      childWidgetData.shouldScrollContents = false;
+      childWidgetData.canExtend = this.props.shouldScrollContents;
+
+      childWidgetData.parentId = this.props.widgetId;
+    } catch (e) {
+      console.log("key...", childWidgetData, e);
+    }
+
+    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+  };
+
+  renderChildren = () => {
+    debugger;
+    return map(
+      // sort by row so stacking context is correct
+      // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
+      // Figure out a way in which the stacking context is consistent.
+      this.props.children,
+      this.renderChildWidget,
+    );
   };
 
   getCanvasChildren = memoizeOne(
@@ -748,7 +787,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
     childCanvas.children = canvasChildren;
 
-    debugger;
+    // debugger;
     return childCanvas;
   };
 
@@ -770,8 +809,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
     const { componentHeight } = this.getComponentDimensions();
     const templateBottomRow = get(children, "0.children.0.bottomRow");
-    const templateHeight =
-      templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    // const templateHeight =
+    // templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    const templateHeight = templateBottomRow;
 
     try {
       gridGap = parseInt(gridGap);
@@ -810,8 +850,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       this.props.children,
       "0.children.0.bottomRow",
     );
-    const templateHeight =
-      templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    const templateHeight = templateBottomRow;
 
     if (this.props.isLoading) {
       return (
