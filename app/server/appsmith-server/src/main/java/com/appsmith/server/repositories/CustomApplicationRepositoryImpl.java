@@ -142,4 +142,10 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
         Criteria deletionCriteria = where(fieldName(QApplication.application.deleted)).ne(true);
         return queryAll(List.of(applicationIdCriteria, deletionCriteria), AclPermission.MANAGE_APPLICATIONS);
     }
+
+    @Override
+    public Mono<Long> countByOrganizationId(String organizationId) {
+        Criteria orgIdCriteria = where(fieldName(QApplication.application.organizationId)).is(organizationId);
+        return this.count(List.of(orgIdCriteria));
+    }
 }
