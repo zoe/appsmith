@@ -605,6 +605,7 @@ function ApiEditorForm(props: Props) {
             </BoundaryContainer>
             <DatasourceWrapper className="t--dataSourceField">
               <EmbeddedDatasourcePathField
+                dataTreePath={`${actionName}.datasourceUrl`}
                 name="actionConfiguration.path"
                 placeholder="https://mock-api.appsmith.com/users"
                 pluginId={pluginId}
