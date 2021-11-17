@@ -47,6 +47,8 @@ import { AuthType } from "entities/Datasource/RestAPIForm";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getExpectedValue } from "utils/validation/common";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 type ReduxStateProps = {
   orgId: string;
@@ -332,6 +334,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       hinting: [bindingHint, this.handleDatasourceHint()],
       showLightningMenu: false,
       fill: true,
+      expected: getExpectedValue({ type: ValidationTypes.SAFE_URL }),
     };
 
     return (
